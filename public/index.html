@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skrepka</title>
+  <script>
+    // Resolve the theme before first paint: saved choice (light / dark / glass), otherwise the system setting
+    (function () {
+      var root = document.documentElement, saved = null, wallpaper = null;
+      try { saved = localStorage.getItem('theme'); wallpaper = localStorage.getItem('wallpaper'); } catch (e) {}
+      var system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.dataset.theme = saved === 'light' || saved === 'dark' || saved === 'glass' ? saved : system;
+      if (wallpaper) root.dataset.wallpaper = wallpaper;
+      // Only Chromium can run an SVG filter as a backdrop-filter (the glass theme's refraction)
+      if (navigator.userAgentData) root.dataset.refraction = 'on';
+    })();
+  </script>
+  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Board Canvas -->
+  <main id="board-viewport">
+    <div id="board-canvas">
+      <svg id="connections-layer"></svg>
+      <div id="elements-layer"></div>
+      <div id="guides-layer"></div>
+    </div>
+  </main>
+
+  <!-- Top Bar (floating) -->
+  <header id="topbar">
+    <div class="island topbar-left">
+      <button id="btn-home" class="icon-btn" title="Home" aria-label="Home">
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#home"></use></svg>
+      </button>
+      <button id="btn-tree" class="icon-btn" title="Board tree" aria-label="Board tree">
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#tree"></use></svg>
+      </button>
+      <nav id="breadcrumb"></nav>
+      <span id="board-title" contenteditable="false" title="Double-click to rename"></span>
+    </div>
+    <div class="island topbar-right">
+      <button id="btn-undo" class="icon-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#undo"></use></svg>
+      </button>
+      <button id="btn-redo" class="icon-btn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled>
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#redo"></use></svg>
+      </button>
+      <span class="island-divider"></span>
+      <button id="btn-search" class="icon-btn" title="Search (Ctrl+K)" aria-label="Search">
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#search"></use></svg>
+      </button>
+      <button id="btn-theme" class="icon-btn" title="Appearance" aria-label="Appearance">
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#theme"></use></svg>
+      </button>
+      <button id="btn-board-settings" class="icon-btn" title="Board Settings" aria-label="Board Settings">
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#settings"></use></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Align bar: shown while two or more cards are selected -->
+  <div id="arrange-bar" class="island hidden">
+    <button class="icon-btn" data-align="left" title="Align left" aria-label="Align left"><svg class="icon" aria-hidden="true"><use href="/icons.svg#align-left"></use></svg></button>
+    <button class="icon-btn" data-align="center" title="Align centers" aria-label="Align centers"><svg class="icon" aria-hidden="true"><use href="/icons.svg#align-center"></use></svg></button>
+    <button class="icon-btn" data-align="right" title="Align right" aria-label="Align right"><svg class="icon" aria-hidden="true"><use href="/icons.svg#align-right"></use></svg></button>
+    <span class="island-divider"></span>
+    <button class="icon-btn" data-align="top" title="Align top" aria-label="Align top"><svg class="icon" aria-hidden="true"><use href="/icons.svg#align-top"></use></svg></button>
+    <button class="icon-btn" data-align="middle" title="Align middles" aria-label="Align middles"><svg class="icon" aria-hidden="true"><use href="/icons.svg#align-middle"></use></svg></button>
+    <button class="icon-btn" data-align="bottom" title="Align bottom" aria-label="Align bottom"><svg class="icon" aria-hidden="true"><use href="/icons.svg#align-bottom"></use></svg></button>
+    <span class="island-divider"></span>
+    <button class="icon-btn" data-distribute="x" title="Space out evenly, left to right" aria-label="Distribute horizontally"><svg class="icon" aria-hidden="true"><use href="/icons.svg#distribute-x"></use></svg></button>
+    <button class="icon-btn" data-distribute="y" title="Space out evenly, top to bottom" aria-label="Distribute vertically"><svg class="icon" aria-hidden="true"><use href="/icons.svg#distribute-y"></use></svg></button>
+  </div>
+
+  <!-- Tool Dock (floating) -->
+  <aside id="sidebar" class="island">
+    <button class="tool-btn" data-tool="note" aria-label="Add Note">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#note"></use></svg>
+      <span>Note</span>
+    </button>
+    <button class="tool-btn" data-tool="image" aria-label="Add Image">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#image"></use></svg>
+      <span>Image</span>
+    </button>
+    <button class="tool-btn" data-tool="todo" aria-label="Add To-Do List">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#todo"></use></svg>
+      <span>To-Do</span>
+    </button>
+    <button class="tool-btn" data-tool="link" aria-label="Add Link">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#link"></use></svg>
+      <span>Link</span>
+    </button>
+    <button class="tool-btn" data-tool="file" aria-label="Attach File">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#paperclip"></use></svg>
+      <span>File</span>
+    </button>
+    <button class="tool-btn" data-tool="column" aria-label="Add Column">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#column"></use></svg>
+      <span>Column</span>
+    </button>
+    <button class="tool-btn" data-tool="color" aria-label="Add Color Swatch">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#palette"></use></svg>
+      <span>Color</span>
+    </button>
+    <button class="tool-btn" data-tool="board" aria-label="Add Sub-Board">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#board"></use></svg>
+      <span>Board</span>
+    </button>
+    <div class="dock-divider"></div>
+    <button class="tool-btn" data-tool="line" aria-label="Draw Line" id="btn-line-mode">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#line"></use></svg>
+      <span>Line</span>
+    </button>
+    <div class="dock-divider"></div>
+    <button class="tool-btn" id="btn-trash" aria-label="Trash">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#trash"></use></svg>
+      <span>Trash</span>
+    </button>
+  </aside>
+
+  <!-- Zoom Controls (floating) -->
+  <div id="zoombar" class="island">
+    <button id="btn-snap-grid" class="icon-btn" title="Snap to grid (hold Alt to place freely)" aria-label="Snap to grid" aria-pressed="false">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#grid"></use></svg>
+    </button>
+    <span class="island-divider"></span>
+    <button id="btn-zoom-out" class="icon-btn" title="Zoom Out" aria-label="Zoom Out">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#minus"></use></svg>
+    </button>
+    <button id="zoom-level" title="Reset to 100%">100%</button>
+    <button id="btn-zoom-in" class="icon-btn" title="Zoom In" aria-label="Zoom In">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#plus"></use></svg>
+    </button>
+    <span class="island-divider"></span>
+    <button id="btn-zoom-fit" class="icon-btn" title="Zoom to Fit" aria-label="Zoom to Fit">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#fit"></use></svg>
+    </button>
+  </div>
+
+
+  <!-- Context Menu -->
+  <div id="context-menu" class="hidden">
+    <div class="ctx-item" data-action="edit">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#edit"></use></svg> Edit
+    </div>
+    <div class="ctx-item" data-action="comment">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#comment"></use></svg> Comment
+    </div>
+    <div class="ctx-item" data-action="duplicate">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#copy"></use></svg> Duplicate
+    </div>
+    <div class="ctx-item ctx-has-submenu" data-action="color">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#palette"></use></svg> Color
+      <svg class="icon ctx-chevron" aria-hidden="true"><use href="/icons.svg#chevron"></use></svg>
+      <div class="ctx-submenu color-picker-grid"></div>
+    </div>
+    <div class="ctx-item" data-action="to-front">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#front"></use></svg> Bring to Front
+    </div>
+    <div class="ctx-item" data-action="to-back">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#back"></use></svg> Send to Back
+    </div>
+    <div class="ctx-item ctx-board-only" data-action="change-icon">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#image-plus"></use></svg> Change Icon
+    </div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item ctx-danger" data-action="delete">
+      <svg class="icon" aria-hidden="true"><use href="/icons.svg#trash"></use></svg> Delete
+    </div>
+  </div>
+
+  <!-- Formatting Toolbar (for text editing) -->
+  <div id="format-toolbar" class="hidden">
+    <button data-cmd="bold" title="Bold (Ctrl+B)"><svg class="icon" aria-hidden="true"><use href="/icons.svg#bold"></use></svg></button>
+    <button data-cmd="italic" title="Italic (Ctrl+I)"><svg class="icon" aria-hidden="true"><use href="/icons.svg#italic"></use></svg></button>
+    <button data-cmd="underline" title="Underline (Ctrl+U)"><svg class="icon" aria-hidden="true"><use href="/icons.svg#underline"></use></svg></button>
+    <span class="fmt-divider"></span>
+    <button data-cmd="formatBlock:h2" title="Heading"><svg class="icon" aria-hidden="true"><use href="/icons.svg#heading"></use></svg></button>
+    <button data-cmd="insertUnorderedList" title="Bullet List"><svg class="icon" aria-hidden="true"><use href="/icons.svg#list-ul"></use></svg></button>
+    <button data-cmd="insertOrderedList" title="Numbered List"><svg class="icon" aria-hidden="true"><use href="/icons.svg#list-ol"></use></svg></button>
+    <button data-cmd="formatBlock:blockquote" title="Quote"><svg class="icon" aria-hidden="true"><use href="/icons.svg#quote"></use></svg></button>
+    <button data-cmd="formatBlock:pre" title="Code Block"><svg class="icon" aria-hidden="true"><use href="/icons.svg#code"></use></svg></button>
+    <span class="fmt-divider"></span>
+    <input type="color" id="fmt-text-color" title="Text Color" value="#31303a">
+    <input type="color" id="fmt-highlight" title="Highlight" value="#fff3cd">
+  </div>
+
+  <!-- Board Settings Panel -->
+  <div id="board-settings-panel" class="panel hidden">
+    <h3>Board Settings</h3>
+    <div class="field">
+      <label for="setting-bg-color">Background</label>
+      <div class="field-controls">
+        <button id="btn-reset-bg" class="text-btn" title="Use the theme background">Reset</button>
+        <input type="color" id="setting-bg-color" value="#f4f5f5">
+      </div>
+    </div>
+    <div class="field">
+      <label for="setting-board-name">Name</label>
+      <input type="text" id="setting-board-name" placeholder="Board name">
+    </div>
+    <div class="field">
+      <label for="setting-board-icon">Icon</label>
+      <input type="text" id="setting-board-icon" class="input-emoji" placeholder="Emoji" maxlength="2">
+    </div>
+    <div class="settings-actions">
+      <button id="btn-export-board" class="secondary-btn"><svg class="icon" aria-hidden="true"><use href="/icons.svg#download"></use></svg> Export</button>
+      <button id="btn-import-board" class="secondary-btn"><svg class="icon" aria-hidden="true"><use href="/icons.svg#upload"></use></svg> Import</button>
+      <input type="file" id="import-file-input" accept=".json" class="hidden">
+    </div>
+  </div>
+
+  <!-- Appearance Panel -->
+  <div id="theme-panel" class="panel hidden">
+    <h3>Appearance</h3>
+    <div class="segmented">
+      <button data-theme-choice="auto"><svg class="icon" aria-hidden="true"><use href="/icons.svg#monitor"></use></svg>Auto</button>
+      <button data-theme-choice="light"><svg class="icon" aria-hidden="true"><use href="/icons.svg#sun"></use></svg>Light</button>
+      <button data-theme-choice="dark"><svg class="icon" aria-hidden="true"><use href="/icons.svg#moon"></use></svg>Dark</button>
+      <button data-theme-choice="glass"><svg class="icon" aria-hidden="true"><use href="/icons.svg#droplet"></use></svg>Glass</button>
+    </div>
+    <div class="wallpaper-field">
+      <h4>Wallpaper</h4>
+      <div class="wallpapers">
+        <button class="wallpaper-opt" data-wallpaper="aurora" title="Aurora" aria-label="Aurora"></button>
+        <button class="wallpaper-opt" data-wallpaper="sunset" title="Sunset" aria-label="Sunset"></button>
+        <button class="wallpaper-opt" data-wallpaper="ocean" title="Ocean" aria-label="Ocean"></button>
+        <button class="wallpaper-opt" data-wallpaper="dawn" title="Dawn" aria-label="Dawn"></button>
+        <button class="wallpaper-opt" data-wallpaper="mint" title="Mint" aria-label="Mint"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Board Tree (hidden until opened; then stays open) -->
+  <div id="tree-panel" class="panel hidden">
+    <h3>Boards</h3>
+    <div id="tree-list"></div>
+  </div>
+
+  <!-- Comments on a card -->
+  <div id="comments-panel" class="panel hidden">
+    <h3>Comments</h3>
+    <div id="comments-list"></div>
+    <textarea id="comment-input" rows="2" placeholder="Add a comment…"></textarea>
+    <div class="comment-hint">Enter to add · Shift+Enter for a new line</div>
+  </div>
+
+  <!-- Trash Panel -->
+  <div id="trash-panel" class="panel hidden">
+    <h3>Trash</h3>
+    <div id="trash-list"></div>
+    <div class="settings-actions trash-actions hidden">
+      <button id="btn-empty-trash" class="secondary-btn danger" data-confirm="Delete everything?">Empty trash</button>
+    </div>
+  </div>
+
+  <!-- Line Style Panel -->
+  <div id="line-style-panel" class="panel hidden">
+    <h4>Line Style</h4>
+    <div class="field">
+      <label for="line-color">Color</label>
+      <input type="color" id="line-color" value="#a0a4ab">
+    </div>
+    <div class="field">
+      <label for="line-width">Width</label>
+      <select id="line-width">
+        <option value="1">Thin</option>
+        <option value="2" selected>Normal</option>
+        <option value="3">Thick</option>
+        <option value="5">Extra Thick</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="line-dashed">Dashed</label>
+      <input type="checkbox" id="line-dashed" class="switch">
+    </div>
+    <div class="field">
+      <label for="line-arrow">Arrow</label>
+      <input type="checkbox" id="line-arrow" class="switch" checked>
+    </div>
+    <div class="field">
+      <label for="line-label">Label</label>
+      <input type="text" id="line-label" placeholder="Label text">
+    </div>
+  </div>
+
+  <!-- Link Input Dialog -->
+  <div id="link-dialog" class="hidden dialog-overlay">
+    <div class="dialog">
+      <h3>Add Link</h3>
+      <input type="url" id="link-url-input" placeholder="Paste a URL..." autofocus>
+      <div class="dialog-actions">
+        <button id="link-cancel" class="secondary-btn">Cancel</button>
+        <button id="link-submit" class="primary-btn">Add Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search (Ctrl+K) -->
+  <div id="search-dialog" class="hidden dialog-overlay">
+    <div class="dialog search-box">
+      <div class="search-field">
+        <svg class="icon" aria-hidden="true"><use href="/icons.svg#search"></use></svg>
+        <input type="text" id="search-input" placeholder="Search boards and cards…" autocomplete="off" spellcheck="false">
+        <kbd>Esc</kbd>
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <!-- Color Swatch Dialog -->
+  <div id="color-dialog" class="hidden dialog-overlay">
+    <div class="dialog">
+      <h3>Add Color Swatch</h3>
+      <div class="swatch-row">
+        <input type="color" id="swatch-color-input" value="#F4511C">
+        <input type="text" id="swatch-color-hex" value="#F4511C" maxlength="7">
+      </div>
+      <div class="dialog-actions">
+        <button id="color-cancel" class="secondary-btn">Cancel</button>
+        <button id="color-submit" class="primary-btn">Add Color</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glass theme: wavy refraction of whatever is behind the floating bars -->
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true">
+    <filter id="liquid-refraction" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="2" seed="11" result="noise"/>
+      <feGaussianBlur in="noise" stdDeviation="2.5" result="waves"/>
+      <feDisplacementMap in="SourceGraphic" in2="waves" scale="42" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

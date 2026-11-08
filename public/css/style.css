@@ -1,0 +1,1465 @@
+/* ================================================================
+   Skrepka styles
+   Full-bleed canvas, floating chrome, light & dark themes
+   ================================================================ */
+
+/* ---- Fonts (self-hosted, SIL OFL, see /fonts/LICENSE-*.txt) ---- */
+@font-face {
+  font-family: 'Inter'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('/fonts/inter-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Inter'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('/fonts/inter-latin-ext-wght-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('/fonts/inter-cyrillic-wght-normal.woff2') format('woff2');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face {
+  font-family: 'Inter'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('/fonts/inter-cyrillic-ext-wght-normal.woff2') format('woff2');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'JetBrains Mono'; font-style: normal; font-weight: 100 800; font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono'; font-style: normal; font-weight: 100 800; font-display: swap;
+  src: url('/fonts/jetbrains-mono-cyrillic-wght-normal.woff2') format('woff2');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ================================================================
+   TOKENS
+   ================================================================ */
+:root {
+  color-scheme: light;
+
+  --canvas: #f2f2ef;
+  --surface: #ffffff;
+  --surface-2: #f5f5f3;
+  --surface-3: #eaeae7;
+  --surface-solid: #ffffff;  /* small floating bits that must stay opaque in every theme */
+  --chrome: rgba(255, 255, 255, 0.82);
+  --field: #ffffff;
+
+  --text: #1c1c21;
+  --text-2: #5c5d68;
+  --text-3: #8b8d98;
+  --text-4: #b6b8c1;
+
+  --line: rgba(24, 24, 32, 0.08);
+  --line-strong: rgba(24, 24, 32, 0.15);
+  --hover: rgba(24, 24, 32, 0.06);
+  --pressed: rgba(24, 24, 32, 0.10);
+
+  --accent: #f4511c;
+  --accent-hover: #df4411;
+  --accent-soft: rgba(244, 81, 28, 0.10);
+  --accent-ring: rgba(244, 81, 28, 0.26);
+  --on-accent: #ffffff;
+
+  --danger: #e5484d;
+  --danger-soft: rgba(229, 72, 77, 0.10);
+
+  /* Anything drawn straight on the canvas (board names, columns, dot grid) */
+  --canvas-ink: var(--text);
+  --canvas-ink-2: var(--text-2);
+  --canvas-ink-3: var(--text-3);
+  --dot: rgba(24, 24, 32, 0.14);
+  --column-bg: rgba(24, 24, 32, 0.045);
+  --column-line: rgba(24, 24, 32, 0.07);
+
+  --ring: rgba(24, 24, 32, 0.06);
+  --shadow-card: 0 0 0 1px var(--ring), 0 1px 2px rgba(24,24,32,0.04), 0 3px 8px rgba(24,24,32,0.04);
+  --shadow-card-hover: 0 0 0 1px var(--ring), 0 2px 4px rgba(24,24,32,0.04), 0 10px 24px rgba(24,24,32,0.09);
+  --shadow-drag: 0 0 0 1px var(--ring), 0 8px 16px rgba(24,24,32,0.08), 0 24px 48px rgba(24,24,32,0.16);
+  --shadow-float: 0 0 0 1px var(--ring), 0 2px 6px rgba(24,24,32,0.04), 0 10px 30px rgba(24,24,32,0.09);
+  --shadow-pop: 0 0 0 1px var(--ring), 0 4px 12px rgba(24,24,32,0.06), 0 20px 48px rgba(24,24,32,0.18);
+
+  --tooltip-bg: #1c1c21;
+  --tooltip-text: #ffffff;
+  --overlay: rgba(24, 24, 32, 0.32);
+  --glass: blur(18px) saturate(160%);
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --edge: 12px;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --fast: 0.14s;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #131316;
+  --surface: #222227;
+  --surface-2: #2a2a30;
+  --surface-3: #34343b;
+  --surface-solid: #2a2a30;
+  --chrome: rgba(34, 34, 39, 0.80);
+  --field: #19191d;
+
+  --text: #ececf0;
+  --text-2: #a8aab6;
+  --text-3: #7a7c89;
+  --text-4: #575964;
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.15);
+  --hover: rgba(255, 255, 255, 0.07);
+  --pressed: rgba(255, 255, 255, 0.12);
+
+  --accent: #ff6a3a;
+  --accent-hover: #ff7f55;
+  --accent-soft: rgba(255, 106, 58, 0.14);
+  --accent-ring: rgba(255, 106, 58, 0.34);
+  --on-accent: #1f0d05;
+
+  --danger: #ff6369;
+  --danger-soft: rgba(255, 99, 105, 0.13);
+
+  --dot: rgba(255, 255, 255, 0.10);
+  --column-bg: rgba(255, 255, 255, 0.045);
+  --column-line: rgba(255, 255, 255, 0.07);
+
+  --ring: rgba(255, 255, 255, 0.07);
+  --shadow-card: 0 0 0 1px var(--ring), 0 2px 6px rgba(0,0,0,0.30);
+  --shadow-card-hover: 0 0 0 1px rgba(255,255,255,0.11), 0 8px 24px rgba(0,0,0,0.45);
+  --shadow-drag: 0 0 0 1px rgba(255,255,255,0.12), 0 24px 56px rgba(0,0,0,0.60);
+  --shadow-float: 0 0 0 1px var(--ring), 0 10px 30px rgba(0,0,0,0.45);
+  --shadow-pop: 0 0 0 1px rgba(255,255,255,0.09), 0 20px 48px rgba(0,0,0,0.60);
+
+  --tooltip-bg: #ececf0;
+  --tooltip-text: #1c1c21;
+  --overlay: rgba(0, 0, 0, 0.55);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, select { font-family: inherit; }
+
+.icon {
+  width: 18px; height: 18px; flex-shrink: 0;
+  fill: none; stroke: currentColor; stroke-width: 1.75;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ================================================================
+   FLOATING CHROME: islands over the canvas
+   ================================================================ */
+.island {
+  display: flex; align-items: center; gap: 2px; padding: 5px;
+  background: var(--chrome);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-float);
+  user-select: none;
+}
+.island-divider { width: 1px; height: 18px; background: var(--line-strong); margin: 0 4px; }
+
+.icon-btn {
+  width: 34px; height: 34px; border: none; flex-shrink: 0;
+  background: transparent; border-radius: 10px;
+  cursor: pointer; display: grid; place-items: center;
+  color: var(--text-2);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.icon-btn:active { background: var(--pressed); }
+
+.icon-btn:disabled { opacity: 0.32; cursor: default; pointer-events: none; }
+.icon-btn.danger:hover { background: var(--danger-soft); color: var(--danger); }
+/* A delete-for-good button that was clicked once and waits for the confirming click */
+.icon-btn.armed, .secondary-btn.armed {
+  width: auto; padding: 0 11px; white-space: nowrap;
+  background: var(--danger); color: #fff; box-shadow: none;
+  font-size: 12px; font-weight: 600;
+}
+
+.icon-btn.active { background: var(--accent-soft); color: var(--accent); }
+
+/* ---- Top bar ---- */
+#topbar {
+  position: fixed; top: var(--edge); left: var(--edge); right: var(--edge);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--edge);
+  z-index: 1000; pointer-events: none;
+}
+#topbar > .island { pointer-events: auto; }
+.topbar-left { min-width: 0; padding-right: 9px; }
+
+#breadcrumb {
+  display: flex; align-items: center; gap: 1px;
+  min-width: 0; overflow: hidden; font-size: 13px; white-space: nowrap;
+}
+#breadcrumb .crumb {
+  color: var(--text-2); cursor: pointer; padding: 5px 8px;
+  border-radius: var(--r-sm); font-weight: 500;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+#breadcrumb .crumb:hover { background: var(--hover); color: var(--text); }
+#breadcrumb .crumb-sep { color: var(--text-4); padding: 0 1px; }
+
+#board-title {
+  font-size: 14px; font-weight: 650; letter-spacing: -0.01em;
+  padding: 5px 8px; border-radius: var(--r-sm);
+  max-width: 44vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  outline: none; cursor: default;
+  transition: background var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+#board-title:focus {
+  background: var(--field); box-shadow: 0 0 0 2px var(--accent-ring);
+  cursor: text; text-overflow: clip; user-select: text;
+}
+
+/* ---- Align bar (while several cards are selected) ---- */
+#arrange-bar {
+  position: fixed; top: var(--edge); left: 50%; transform: translateX(-50%);
+  z-index: 1000; animation: fadeIn 0.12s var(--ease);
+}
+
+/* ---- Tool dock ---- */
+#sidebar {
+  position: fixed; left: var(--edge); top: 50%; transform: translateY(-50%);
+  flex-direction: column; padding: 6px; z-index: 999;
+}
+.tool-btn {
+  position: relative; width: 40px; height: 40px; border: none;
+  background: transparent; border-radius: 11px;
+  cursor: pointer; display: grid; place-items: center;
+  color: var(--text-2);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.tool-btn .icon { width: 20px; height: 20px; transition: transform var(--fast) var(--ease); }
+.tool-btn:hover { background: var(--hover); color: var(--text); }
+.tool-btn:active .icon { transform: scale(0.9); }
+.tool-btn.active { background: var(--accent); color: var(--on-accent); }
+
+/* The label becomes a tooltip */
+.tool-btn span {
+  position: absolute; left: calc(100% + 12px); top: 50%;
+  transform: translate(-4px, -50%);
+  padding: 5px 9px; border-radius: 7px;
+  background: var(--tooltip-bg); color: var(--tooltip-text);
+  font-size: 12px; font-weight: 500; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.tool-btn:hover span { opacity: 1; transform: translate(0, -50%); transition-delay: 0.12s; }
+
+#btn-trash.has-items::after {
+  content: ''; position: absolute; top: 7px; right: 7px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+}
+
+.dock-divider { width: 22px; height: 1px; background: var(--line-strong); margin: 4px auto; }
+
+/* ---- Zoom controls ---- */
+#zoombar { position: fixed; right: var(--edge); bottom: var(--edge); z-index: 999; }
+#zoom-level {
+  min-width: 50px; height: 34px; padding: 0 4px; border: none;
+  background: transparent; border-radius: 10px; cursor: pointer;
+  font-size: 12.5px; font-weight: 550; font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+#zoom-level:hover { background: var(--hover); color: var(--text); }
+
+/* ================================================================
+   BOARD VIEWPORT & CANVAS
+   ================================================================ */
+#board-viewport {
+  position: fixed; inset: 0; overflow: hidden; cursor: default;
+  touch-action: none; /* fingers pan and pinch the canvas (app.js), not the page */
+  background-color: var(--board-bg, var(--canvas));
+  /* Dot grid; app.js keeps --grid-* in sync with pan and zoom */
+  background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 1.5px);
+  background-size: var(--grid-size, 24px) var(--grid-size, 24px);
+  background-position: var(--grid-x, 0px) var(--grid-y, 0px);
+}
+/* A custom board background decides how on-canvas text is drawn, whatever the theme */
+#board-viewport[data-tone="light"] {
+  --canvas-ink: #1c1c21; --canvas-ink-2: #5c5d68; --canvas-ink-3: #8b8d98;
+  --dot: rgba(24, 24, 32, 0.14); --column-bg: rgba(24, 24, 32, 0.05); --column-line: rgba(24, 24, 32, 0.08);
+}
+#board-viewport[data-tone="dark"] {
+  --canvas-ink: #ececf0; --canvas-ink-2: #a8aab6; --canvas-ink-3: #7a7c89;
+  --dot: rgba(255, 255, 255, 0.12); --column-bg: rgba(255, 255, 255, 0.06); --column-line: rgba(255, 255, 255, 0.09);
+}
+
+#board-viewport.line-mode { cursor: crosshair; }
+#board-viewport.line-mode .card { cursor: pointer; }
+/* Space held: ready to pan; pan-active: the canvas is being dragged */
+#board-viewport.panning, #board-viewport.panning .card { cursor: grab; }
+#board-viewport.pan-active, #board-viewport.pan-active .card { cursor: grabbing; }
+
+#board-canvas {
+  position: absolute; width: 1px; height: 1px; transform-origin: 0 0;
+}
+
+/* Guide lines shown while a dragged card lines up with another; one screen pixel at any zoom */
+#guides-layer { position: absolute; top: 0; left: 0; z-index: 10001; pointer-events: none; }
+.guide { position: absolute; background: var(--accent); }
+.guide-v { width: calc(1px / var(--zoom, 1)); }
+.guide-h { height: calc(1px / var(--zoom, 1)); }
+
+#elements-layer { position: absolute; top: 0; left: 0; pointer-events: none; }
+#elements-layer > * { pointer-events: auto; }
+
+#connections-layer {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; overflow: visible;
+  pointer-events: none; z-index: 0;
+}
+#connections-layer path,
+#connections-layer line { pointer-events: stroke; cursor: pointer; }
+#connections-layer .conn-hitarea {
+  stroke-width: 14; stroke: transparent;
+  fill: none; pointer-events: stroke; cursor: pointer;
+}
+#temp-line-mode { stroke: var(--accent); }
+
+/* Empty board hint (delayed so it never flashes while a board loads) */
+#board-viewport:has(:where(#elements-layer:empty))::after {
+  content: 'This board is empty\A Pick a tool on the left or drop images anywhere';
+  position: absolute; inset: 0; display: grid; place-content: center;
+  white-space: pre-line; text-align: center;
+  font-size: 14px; line-height: 1.75; color: var(--canvas-ink-3);
+  pointer-events: none; animation: fadeIn 0.4s 0.35s var(--ease) backwards;
+}
+
+/* Line mode hint */
+#board-viewport.line-mode::before {
+  content: 'Click a card, then another one to connect them  ·  Esc to finish';
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+  padding: 8px 14px; border-radius: 999px; white-space: pre;
+  background: var(--tooltip-bg); color: var(--tooltip-text);
+  font-size: 12.5px; font-weight: 500;
+  box-shadow: var(--shadow-float); z-index: 9000; pointer-events: none;
+  animation: fadeIn 0.2s var(--ease);
+}
+
+/* ================================================================
+   CARDS
+   ================================================================ */
+.card {
+  /* Inks are re-declared per card so a tinted parent column never leaks into its children */
+  --ink: var(--text);
+  --ink-2: var(--text-2);
+  --ink-3: var(--text-3);
+  --ink-4: var(--text-4);
+  --ink-wash: var(--hover);
+
+  position: absolute; background: var(--surface); color: var(--ink);
+  border-radius: var(--r-md); box-shadow: var(--shadow-card);
+  min-width: 180px; cursor: default; user-select: none;
+  transition: box-shadow var(--fast) var(--ease);
+  animation: cardAppear 0.22s var(--ease) backwards;
+}
+/* A user-picked pastel (--tint, set by applyCardColor) keeps dark ink in every theme */
+.card.tinted {
+  background-color: var(--tint);
+  --ink: #22222a;
+  --ink-2: rgba(34, 34, 42, 0.70);
+  --ink-3: rgba(34, 34, 42, 0.52);
+  --ink-4: rgba(34, 34, 42, 0.36);
+  --ink-wash: rgba(34, 34, 42, 0.07);
+}
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(5px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+/* Redrawn in place (undo, a refreshed card): no entrance animation */
+.card.no-appear, .no-appear .card { animation: none; }
+/* The card a search result led to */
+.card.flash { animation: cardFlash 1.2s var(--ease); }
+@keyframes cardFlash {
+  0%, 55% { box-shadow: 0 0 0 2px var(--accent), 0 0 0 10px var(--accent-ring), var(--shadow-card-hover); }
+  100%    { box-shadow: 0 0 0 2px var(--accent), 0 0 0 0 transparent, var(--shadow-card-hover); }
+}
+.card:hover { box-shadow: var(--shadow-card-hover); }
+.card.selected { box-shadow: 0 0 0 2px var(--accent), var(--shadow-card-hover); }
+.card.line-source { box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px var(--accent-ring), var(--shadow-card-hover); }
+.card.dragging {
+  box-shadow: var(--shadow-drag); cursor: grabbing;
+  z-index: 10000 !important;
+}
+.card.dragging.selected { box-shadow: 0 0 0 2px var(--accent), var(--shadow-drag); }
+
+.card .resize-handle {
+  position: absolute; bottom: 0; right: 0; z-index: 3;
+  width: 20px; height: 20px; cursor: nwse-resize;
+  opacity: 0; transition: opacity var(--fast) var(--ease);
+}
+.card:hover > .resize-handle, .card.selected > .resize-handle { opacity: 1; }
+.card .resize-handle::after {
+  content: ''; position: absolute;
+  bottom: 5px; right: 5px; width: 8px; height: 8px;
+  border-right: 2px solid var(--ink-4);
+  border-bottom: 2px solid var(--ink-4);
+  border-bottom-right-radius: 5px;
+}
+
+/* Number of comments, on the card's corner */
+.comment-badge {
+  position: absolute; top: -9px; right: -9px; z-index: 4;
+  height: 22px; min-width: 22px; padding: 0 7px; border: none; border-radius: 999px;
+  display: flex; align-items: center; gap: 3px;
+  background: var(--accent); color: var(--on-accent);
+  font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  transition: transform var(--fast) var(--ease);
+}
+.comment-badge:hover { transform: scale(1.1); }
+.comment-badge .icon { width: 11px; height: 11px; stroke-width: 2.5; }
+/* A board card's own corner is far from its tile, and its delete button lives top right */
+.card-board .comment-badge { top: -7px; right: auto; left: 4px; }
+
+/* ================================================================
+   NOTE CARD
+   ================================================================ */
+.card-note .note-content {
+  padding: 15px 17px; outline: none; min-height: 52px;
+  font-size: 14px; line-height: 1.6;
+  overflow-wrap: anywhere; color: var(--ink);
+}
+.card-note .note-content[contenteditable="true"] { cursor: text; }
+.card-note .note-content:empty::before {
+  content: 'Double-click to write…'; color: var(--ink-4); pointer-events: none;
+}
+.card-note .note-content[contenteditable="true"]:empty::before { content: 'Write something…'; }
+.card-note .note-content h2 { font-size: 18px; font-weight: 650; line-height: 1.35; letter-spacing: -0.015em; margin-bottom: 4px; }
+.card-note .note-content b,
+.card-note .note-content strong { font-weight: 650; }
+.card-note .note-content a { color: var(--accent); }
+.card-note .note-content blockquote {
+  border-left: 3px solid var(--accent); padding-left: 12px;
+  color: var(--ink-2); margin: 6px 0;
+}
+.card-note .note-content pre {
+  background: var(--ink-wash); padding: 10px 12px; border-radius: var(--r-sm);
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.55;
+  overflow-x: auto; margin: 6px 0; white-space: pre-wrap;
+}
+.card-note .note-content ul,
+.card-note .note-content ol { padding-left: 20px; margin: 4px 0; }
+.card-note .note-content li { margin: 2px 0; }
+.card-note .note-content li::marker { color: var(--ink-3); }
+
+/* ================================================================
+   IMAGE CARD: always as tall as the picture plus its caption
+   ================================================================ */
+.card-image { min-width: 100px; min-height: 40px; height: auto !important; }
+.card-image img {
+  display: block; width: 100%; height: auto; pointer-events: none;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+}
+/* Without a caption strip the picture is the whole card */
+.card-image:has(.image-caption:empty:not([contenteditable="true"])) img { border-radius: var(--r-md); }
+.card-image .image-caption {
+  padding: 10px 14px 11px; font-size: 12.5px; line-height: 1.5;
+  color: var(--ink-2); outline: none; overflow-wrap: anywhere;
+}
+.card-image .image-caption[contenteditable="true"] { cursor: text; }
+.card-image .image-caption:empty::before { content: 'Double-click to add a caption'; }
+.card-image .image-caption[contenteditable="true"]:empty::before { content: 'Caption…'; color: var(--ink-4); }
+/* No caption yet: no empty strip under the picture, just a hint on hover */
+.card-image .image-caption:empty:not([contenteditable="true"]) {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 26px 14px 10px; color: #fff;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  opacity: 0; transition: opacity var(--fast) var(--ease);
+}
+.card-image:hover .image-caption:empty:not([contenteditable="true"]) { opacity: 1; }
+
+/* ================================================================
+   TO-DO CARD
+   ================================================================ */
+.card-todo { min-width: 220px; }
+.card-todo .todo-header {
+  padding: 14px 16px 8px; font-weight: 650; font-size: 14px;
+  letter-spacing: -0.005em; outline: none;
+}
+.card-todo .todo-header:empty::before { content: 'To-Do List'; color: var(--ink-4); }
+.card-todo .todo-items { padding: 0 8px 2px; }
+.card-todo .todo-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 5px 8px; border-radius: var(--r-sm);
+  transition: background var(--fast) var(--ease);
+}
+.card-todo .todo-item:hover { background: var(--ink-wash); }
+.card-todo .todo-item input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none;
+  width: 17px; height: 17px; margin-top: 2.5px; flex-shrink: 0;
+  border: 1.5px solid var(--ink-4); border-radius: 5.5px;
+  background: transparent; cursor: pointer;
+  display: grid; place-content: center;
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.card-todo .todo-item input[type="checkbox"]:hover { border-color: var(--accent); }
+.card-todo .todo-item input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
+.card-todo .todo-item input[type="checkbox"]:checked::after {
+  content: ''; width: 9px; height: 5px; margin-top: -2px;
+  border-left: 2px solid var(--on-accent); border-bottom: 2px solid var(--on-accent);
+  transform: rotate(-45deg);
+}
+.card-todo .todo-item .todo-text {
+  flex: 1; min-width: 0; outline: none; font-size: 14px; line-height: 1.55;
+  color: var(--ink); overflow-wrap: anywhere;
+  transition: color var(--fast) var(--ease);
+}
+.card-todo .todo-item .todo-text[contenteditable="true"] { cursor: text; }
+.card-todo .todo-item .todo-text:empty::before { content: 'To-do'; color: var(--ink-4); }
+.card-todo .todo-item .todo-text.done { text-decoration: line-through; color: var(--ink-3); }
+.card-todo .todo-item .todo-delete {
+  opacity: 0; border: none; background: none; color: var(--ink-3);
+  cursor: pointer; width: 22px; height: 22px; border-radius: 6px;
+  display: grid; place-items: center; flex-shrink: 0;
+  transition: opacity var(--fast) var(--ease), color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.card-todo .todo-item .todo-delete .icon { width: 13px; height: 13px; stroke-width: 2.25; }
+.card-todo .todo-item:hover .todo-delete { opacity: 1; }
+.card-todo .todo-item .todo-delete:hover { color: var(--danger); background: var(--danger-soft); }
+.card-todo .todo-add {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 16px 13px; color: var(--ink-3);
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  transition: color var(--fast) var(--ease);
+}
+.card-todo .todo-add .icon { width: 15px; height: 15px; stroke-width: 2; margin: 0 1px; }
+.card-todo .todo-add:hover { color: var(--accent); }
+
+/* ================================================================
+   LINK CARD
+   ================================================================ */
+.card-link { min-width: 240px; }
+.card-link .link-preview-image {
+  width: 100%; height: 148px; object-fit: cover; display: block;
+  background: var(--surface-2); border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.card-link .link-info { padding: 13px 15px 14px; }
+.card-link .link-title {
+  font-weight: 600; font-size: 14px; line-height: 1.4; margin-bottom: 4px;
+  color: var(--ink); display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-link .link-description {
+  font-size: 12.5px; color: var(--ink-2);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; margin-bottom: 9px; line-height: 1.5;
+}
+.card-link .link-site {
+  font-size: 11.5px; color: var(--ink-3);
+  display: flex; align-items: center; gap: 6px; font-weight: 500;
+}
+.card-link .link-site .icon { width: 13px; height: 13px; }
+.card-link .link-open,
+.card-file .file-download {
+  position: absolute; top: 8px; right: 8px;
+  width: 30px; height: 30px; border: none; border-radius: 50%;
+  background: var(--surface-solid); color: var(--text-2);
+  box-shadow: var(--shadow-float); cursor: pointer;
+  display: grid; place-items: center;
+  opacity: 0; transform: scale(0.9);
+  transition: opacity var(--fast) var(--ease), transform var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.card-link .link-open .icon,
+.card-file .file-download .icon { width: 14px; height: 14px; }
+.card-link:hover .link-open,
+.card-file:hover .file-download { opacity: 1; transform: none; }
+.card-link .link-open:hover,
+.card-file .file-download:hover { color: var(--accent); }
+
+/* ================================================================
+   FILE CARD
+   ================================================================ */
+.card-file { min-width: 200px; }
+.card-file .file-body { display: flex; align-items: center; gap: 12px; padding: 13px 44px 13px 14px; }
+.card-file .file-icon {
+  flex: none; width: 40px; height: 48px; border-radius: var(--r-sm);
+  background: var(--surface-2); color: var(--ink-2);
+  display: grid; place-items: center;
+}
+.card-file .file-icon .icon { width: 22px; height: 22px; }
+.card-file .file-info { min-width: 0; }
+.card-file .file-name {
+  font-weight: 600; font-size: 14px; line-height: 1.4; color: var(--ink);
+  overflow-wrap: anywhere; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-file .file-meta { font-size: 11.5px; color: var(--ink-3); font-weight: 500; margin-top: 3px; }
+
+/* ================================================================
+   COLUMN
+   ================================================================ */
+.card-column {
+  --ink: var(--canvas-ink);
+  --ink-2: var(--canvas-ink-2);
+  --ink-4: var(--canvas-ink-3);
+  min-width: 260px; min-height: 100px;
+  background: var(--column-bg);
+  box-shadow: inset 0 0 0 1px var(--column-line);
+  padding: 10px; display: flex; flex-direction: column;
+  gap: 8px; border-radius: var(--r-lg);
+}
+.card-column:hover { box-shadow: inset 0 0 0 1px var(--line-strong); }
+.card-column.selected,
+.card-column.dragging.selected { box-shadow: 0 0 0 2px var(--accent); }
+.card-column.dragging { box-shadow: inset 0 0 0 1px var(--line-strong), var(--shadow-drag); }
+.card-column .column-title {
+  font-weight: 650; font-size: 13px; letter-spacing: -0.005em;
+  color: var(--ink-2); padding: 3px 6px; outline: none;
+}
+.card-column .column-title[contenteditable="true"] { cursor: text; color: var(--ink); }
+.card-column .column-title:empty::before { content: 'Column title'; color: var(--ink-4); }
+.card-column .column-body {
+  flex: 1; min-height: 60px; display: flex; flex-direction: column; gap: 8px;
+  border-radius: 10px;
+}
+.card-column .column-body:empty::before {
+  content: 'Drop cards here'; flex: 1; min-height: 60px;
+  display: grid; place-items: center;
+  border: 1.5px dashed var(--line-strong); border-radius: 10px;
+  font-size: 12.5px; color: var(--ink-4);
+}
+.card-column .column-body.drag-over { background: var(--accent-soft); }
+.card-column .card {
+  position: relative !important; left: auto !important;
+  top: auto !important; width: 100% !important;
+}
+/* A column is as tall as its cards, and its cards take their size from it */
+.card-column { height: auto !important; }
+.card-column .card > .resize-handle { display: none; }
+.card-column .column-add {
+  display: flex; align-items: center; gap: 8px; padding: 3px 6px 1px;
+  color: var(--ink-4); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: color var(--fast) var(--ease);
+}
+.card-column .column-add .icon { width: 15px; height: 15px; stroke-width: 2; }
+.card-column .column-add:hover { color: var(--accent); }
+/* While a card is dragged over a column: the column lights up and a line shows where it will land */
+.card-column.drop-target { box-shadow: 0 0 0 2px var(--accent); }
+.column-drop-line {
+  position: absolute; left: 10px; right: 10px; height: 3px; z-index: 5;
+  border-radius: 2px; background: var(--accent); pointer-events: none;
+}
+
+/* ================================================================
+   COLOR SWATCH
+   ================================================================ */
+.card-color {
+  min-width: 140px; width: 140px;
+  border-radius: var(--r-lg); display: flex; flex-direction: column;
+}
+.card-color .color-preview {
+  flex: 1; min-height: 56px; cursor: pointer;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: inset 0 -1px 0 var(--line);
+  transition: filter var(--fast) var(--ease);
+}
+.card-color .color-preview:hover { filter: brightness(1.06); }
+.card-color .color-value {
+  padding: 9px 12px 10px; font-family: var(--mono);
+  font-size: 12px; text-align: center; color: var(--ink-2);
+  cursor: pointer; user-select: all; letter-spacing: 0.02em; font-weight: 500;
+}
+
+/* ================================================================
+   BOARD CARD: rounded tile with the name below
+   ================================================================ */
+.card-board {
+  min-width: 0; padding: 0; border-radius: 0;
+  background: transparent; box-shadow: none;
+  cursor: pointer; text-align: center; overflow: visible;
+}
+.card-board:hover, .card-board.selected, .card-board.line-source,
+.card-board.dragging, .card-board.dragging.selected { box-shadow: none; }
+
+.board-icon-area {
+  width: 112px; height: 112px; margin: 0 auto;
+  background: var(--surface); border-radius: 26px;
+  box-shadow: var(--shadow-card);
+  display: grid; place-items: center;
+  position: relative; overflow: hidden;
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
+}
+.card-board:hover .board-icon-area { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
+.card-board.selected .board-icon-area,
+.card-board.line-source .board-icon-area { box-shadow: 0 0 0 2.5px var(--accent), var(--shadow-card-hover); }
+.card-board.dragging .board-icon-area { box-shadow: var(--shadow-drag); }
+.card-board.dragging.selected .board-icon-area { box-shadow: 0 0 0 2.5px var(--accent), var(--shadow-drag); }
+.board-icon-area .board-emoji { font-size: 44px; line-height: 1; pointer-events: none; }
+.board-icon-area .board-custom-icon {
+  width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+}
+
+.card-board .board-name {
+  margin: 8px auto 0; padding: 1px 6px; border-radius: 6px;
+  font-size: 13px; font-weight: 600; letter-spacing: -0.005em;
+  color: var(--canvas-ink); outline: none;
+  max-width: 136px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.card-board .board-name[contenteditable="true"] {
+  background: var(--field); color: var(--text); cursor: text;
+  box-shadow: 0 0 0 2px var(--accent-ring); text-overflow: clip;
+}
+.card-board .board-name:empty::before { content: 'Board'; color: var(--canvas-ink-3); }
+
+/* Delete button on board card */
+.card-board .board-card-delete {
+  position: absolute; top: -7px; right: 6px;
+  width: 24px; height: 24px; border: none;
+  background: var(--surface-solid); border-radius: 50%;
+  box-shadow: var(--shadow-float); cursor: pointer;
+  display: grid; place-items: center; color: var(--text-3);
+  opacity: 0; transform: scale(0.85); z-index: 2;
+  transition: opacity var(--fast) var(--ease), transform var(--fast) var(--ease),
+              background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.card-board .board-card-delete .icon { width: 12px; height: 12px; stroke-width: 2.5; }
+.card-board:hover .board-card-delete { opacity: 1; transform: none; }
+.card-board .board-card-delete:hover { background: var(--danger); color: #fff; }
+
+/* ================================================================
+   CURVE HANDLE for connections
+   ================================================================ */
+.curve-handle {
+  position: absolute;
+  width: 14px; height: 14px;
+  background: var(--accent);
+  border: 2.5px solid var(--surface-solid);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--ring), 0 2px 6px rgba(0,0,0,0.2);
+  cursor: grab;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  pointer-events: auto;
+  transition: transform 0.1s var(--ease);
+}
+.curve-handle:hover { transform: translate(-50%,-50%) scale(1.25); }
+.curve-handle:active { cursor: grabbing; }
+
+/* ================================================================
+   CONTEXT MENU
+   ================================================================ */
+#context-menu {
+  position: fixed;
+  background: var(--chrome);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+  border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+  min-width: 200px; padding: 5px; user-select: none;
+  z-index: 10000; animation: popIn 0.12s var(--ease);
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+.ctx-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px; border-radius: 9px;
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  position: relative; transition: background var(--fast) var(--ease);
+}
+.ctx-item:hover { background: var(--hover); }
+.ctx-item .icon { width: 16px; height: 16px; color: var(--text-3); }
+.ctx-item .ctx-chevron { margin-left: auto; width: 14px; height: 14px; }
+.ctx-danger { color: var(--danger); }
+.ctx-danger .icon { color: inherit; }
+.ctx-danger:hover { background: var(--danger-soft); }
+.ctx-divider { height: 1px; background: var(--line); margin: 5px 6px; }
+
+/* Solid, not glass: a backdrop-filter nested inside another one has nothing to blur */
+.ctx-submenu {
+  display: none; position: absolute; left: calc(100% - 4px); top: -5px;
+  background: var(--surface-solid);
+  border-radius: 14px; box-shadow: var(--shadow-pop);
+  padding: 10px; z-index: 10001;
+}
+#context-menu.submenu-left .ctx-submenu { left: auto; right: calc(100% - 4px); }
+.ctx-item:hover > .ctx-submenu { display: grid; }
+.color-picker-grid { grid-template-columns: repeat(5, 26px); gap: 7px; }
+.color-picker-grid .color-opt {
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(24, 24, 32, 0.12);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.color-picker-grid .color-opt-default {
+  background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.color-picker-grid .color-opt:hover {
+  transform: scale(1.14);
+  box-shadow: inset 0 0 0 1px rgba(24, 24, 32, 0.12), 0 0 0 2px var(--accent);
+}
+
+/* ================================================================
+   FORMAT TOOLBAR
+   ================================================================ */
+#format-toolbar {
+  position: fixed;
+  background: var(--chrome);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+  border-radius: 12px; box-shadow: var(--shadow-pop);
+  display: flex; align-items: center; gap: 1px;
+  padding: 4px; z-index: 10000; user-select: none;
+  animation: popIn 0.12s var(--ease);
+}
+#format-toolbar button {
+  width: 30px; height: 30px; border: none;
+  background: transparent; border-radius: var(--r-sm);
+  cursor: pointer; display: grid; place-items: center;
+  color: var(--text-2);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+#format-toolbar button .icon { width: 16px; height: 16px; stroke-width: 2; }
+#format-toolbar button:hover { background: var(--hover); color: var(--text); }
+#format-toolbar button.active { background: var(--accent-soft); color: var(--accent); }
+.fmt-divider { width: 1px; height: 18px; background: var(--line-strong); margin: 0 4px; }
+#format-toolbar input[type="color"] { width: 20px; height: 20px; margin: 0 5px; }
+
+/* ================================================================
+   FORM CONTROLS
+   ================================================================ */
+input[type="text"], input[type="url"], select {
+  height: 34px; padding: 0 10px;
+  border: 1px solid var(--line-strong); border-radius: 9px;
+  background: var(--field); color: var(--text);
+  font-size: 13px; outline: none;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+input[type="text"]::placeholder, input[type="url"]::placeholder { color: var(--text-4); }
+input[type="text"]:focus, input[type="url"]:focus, select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+}
+textarea {
+  display: block; width: 100%; padding: 8px 10px; resize: none;
+  border: 1px solid var(--line-strong); border-radius: 10px;
+  background: var(--field); color: var(--text);
+  font-family: inherit; font-size: 13.5px; line-height: 1.45; outline: none;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+textarea::placeholder { color: var(--text-4); }
+textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+select {
+  appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8d98' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 9px center;
+}
+
+input[type="color"] {
+  appearance: none; -webkit-appearance: none;
+  width: 28px; height: 28px; padding: 0; border: none; flex-shrink: 0;
+  border-radius: 50%; background: none; cursor: pointer; overflow: hidden;
+  box-shadow: 0 0 0 1px var(--line-strong);
+  transition: box-shadow var(--fast) var(--ease);
+}
+input[type="color"]:hover { box-shadow: 0 0 0 1px var(--line-strong), 0 0 0 4px var(--hover); }
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: none; }
+input[type="color"]::-moz-color-swatch { border: none; }
+
+.switch {
+  appearance: none; -webkit-appearance: none;
+  width: 36px; height: 22px; flex-shrink: 0; position: relative;
+  border-radius: 999px; background: var(--surface-3); cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: background var(--fast) var(--ease);
+}
+.switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.16s var(--ease);
+}
+.switch:checked { background: var(--accent); box-shadow: none; }
+.switch:checked::after { transform: translateX(14px); }
+
+/* ================================================================
+   SETTINGS / LINE PANELS
+   ================================================================ */
+.panel {
+  position: fixed; top: calc(var(--edge) + 56px); right: var(--edge);
+  width: 288px; max-height: calc(100vh - 150px); overflow-y: auto;
+  background: var(--chrome);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-pop);
+  padding: 16px 18px 18px; z-index: 999;
+  animation: panelIn 0.18s var(--ease);
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+/* All panels share one spot; settings and appearance win over the line panel while open */
+#board-settings-panel:not(.hidden) ~ #line-style-panel,
+#theme-panel:not(.hidden) ~ #line-style-panel { display: none; }
+
+.panel h3, .panel h4 {
+  margin-bottom: 12px; font-size: 14px; font-weight: 650; letter-spacing: -0.01em;
+}
+.field {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; min-height: 38px;
+}
+.field + .field { margin-top: 4px; }
+.field label { font-size: 13px; color: var(--text-2); cursor: default; }
+.field input[type="text"], .field select { width: 156px; }
+.field .input-emoji { width: 56px; text-align: center; font-size: 16px; padding: 0; }
+.field-controls { display: flex; align-items: center; gap: 10px; }
+.text-btn {
+  border: none; background: none; padding: 4px 6px; border-radius: 6px;
+  font-size: 12px; font-weight: 500; color: var(--text-3); cursor: pointer;
+  transition: color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.text-btn:hover { color: var(--text); background: var(--hover); }
+.settings-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line);
+}
+
+/* ---- Appearance panel ---- */
+.segmented {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px;
+  padding: 3px; border-radius: 13px; background: var(--hover);
+}
+.segmented button {
+  display: grid; justify-items: center; gap: 5px; padding: 9px 0 7px;
+  border: none; border-radius: 10px; background: transparent; cursor: pointer;
+  font-size: 11.5px; font-weight: 550; color: var(--text-2);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.segmented button:hover { color: var(--text); }
+.segmented button.active {
+  background: var(--surface-solid); color: var(--text);
+  box-shadow: 0 0 0 1px var(--line), 0 1px 3px rgba(0, 0, 0, 0.10);
+}
+.wallpaper-field { margin-top: 16px; }
+:root:not([data-theme="glass"]) .wallpaper-field { display: none; }
+.panel .wallpaper-field h4 { margin-bottom: 10px; font-size: 13px; font-weight: 500; color: var(--text-2); }
+.wallpapers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+.wallpaper-opt {
+  aspect-ratio: 1; border: none; border-radius: 12px; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.30);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.wallpaper-opt:hover { transform: scale(1.07); }
+.wallpaper-opt.active { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.30), 0 0 0 2.5px var(--accent); }
+.wallpaper-opt[data-wallpaper="aurora"] { background: var(--wp-aurora); }
+.wallpaper-opt[data-wallpaper="sunset"] { background: var(--wp-sunset); }
+.wallpaper-opt[data-wallpaper="ocean"] { background: var(--wp-ocean); }
+.wallpaper-opt[data-wallpaper="dawn"] { background: var(--wp-dawn); }
+.wallpaper-opt[data-wallpaper="mint"] { background: var(--wp-mint); }
+
+/* ---- Board tree: under the top bar, beside the dock ---- */
+#tree-panel {
+  top: calc(var(--edge) + 56px); right: auto; left: calc(var(--edge) + 66px);
+  width: 264px; padding: 14px 8px 8px;
+  animation: fadeIn 0.15s var(--ease);
+}
+#tree-panel h3 { margin: 0 8px 8px; }
+.tree-row {
+  display: flex; align-items: center; gap: 6px; height: 32px; padding-right: 8px;
+  border-radius: 9px; cursor: pointer; font-size: 13.5px;
+}
+.tree-row:hover { background: var(--hover); }
+.tree-row.current { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.tree-toggle {
+  width: 18px; height: 18px; flex-shrink: 0; padding: 0; border: none; border-radius: 5px;
+  background: none; color: var(--text-3); cursor: pointer;
+  display: grid; place-items: center;
+}
+button.tree-toggle:hover { background: var(--hover); color: var(--text); }
+.tree-toggle .icon { width: 13px; height: 13px; stroke-width: 2.25; transition: transform var(--fast) var(--ease); }
+.tree-toggle.open .icon { transform: rotate(90deg); }
+.tree-icon {
+  width: 20px; height: 20px; flex-shrink: 0; overflow: hidden; border-radius: 6px;
+  display: grid; place-items: center; font-size: 14px; line-height: 1;
+}
+.tree-icon .icon { width: 15px; height: 15px; }
+.tree-icon img { width: 100%; height: 100%; object-fit: cover; }
+.tree-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tree-note { padding: 6px 8px 8px; font-size: 13px; line-height: 1.5; color: var(--text-3); }
+
+/* ---- Comments: placed next to their card by comments.js ---- */
+#comments-panel {
+  top: 0; right: auto; left: 0; width: 300px; padding: 14px 14px 12px;
+  z-index: 1001; animation: fadeIn 0.12s var(--ease);
+}
+#comments-list { max-height: 260px; overflow-y: auto; margin-bottom: 12px; }
+.comment + .comment { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.comment-text { font-size: 13.5px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.comment-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 24px; font-size: 11.5px; color: var(--text-3);
+}
+.comment-meta .text-btn { opacity: 0; }
+.comment:hover .text-btn, .comment-meta .text-btn:focus-visible { opacity: 1; }
+.comment-meta .text-btn:hover { color: var(--danger); background: var(--danger-soft); }
+.comment-none { font-size: 13px; color: var(--text-3); }
+.comment-hint { margin-top: 6px; font-size: 11.5px; color: var(--text-3); }
+
+/* ---- Trash panel: opens beside the dock instead of in the panels' usual corner ---- */
+#trash-panel {
+  top: 50%; right: auto; left: calc(var(--edge) + 66px);
+  width: 320px; transform: translateY(-50%);
+  animation: fadeIn 0.15s var(--ease);
+}
+.trash-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+.trash-row + .trash-row { border-top: 1px solid var(--line); }
+.trash-icon {
+  width: 38px; height: 38px; flex-shrink: 0; overflow: hidden;
+  border-radius: 11px; background: var(--hover);
+  display: grid; place-items: center; font-size: 19px;
+}
+.trash-icon img { width: 100%; height: 100%; object-fit: cover; }
+.trash-info { flex: 1; min-width: 0; }
+.trash-name {
+  font-size: 13.5px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.trash-meta { font-size: 12px; color: var(--text-3); }
+.trash-note { font-size: 13px; line-height: 1.55; color: var(--text-3); }
+.trash-actions { grid-template-columns: 1fr; }
+.secondary-btn.danger:not(.armed) { color: var(--danger); }
+
+/* ================================================================
+   DIALOGS
+   ================================================================ */
+.dialog-overlay {
+  position: fixed; inset: 0; padding: 16px;
+  background: var(--overlay);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: grid; place-items: center;
+  z-index: 20000; animation: fadeIn 0.15s var(--ease);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.dialog {
+  width: min(420px, 100%);
+  background: var(--surface);
+  border-radius: 20px; padding: 22px;
+  box-shadow: var(--shadow-pop);
+  animation: dialogIn 0.2s var(--ease);
+}
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+.dialog h3 { margin-bottom: 14px; font-size: 16px; font-weight: 650; letter-spacing: -0.01em; }
+.dialog input[type="url"],
+.dialog input[type="text"] {
+  width: 100%; height: 42px; padding: 0 13px;
+  border-radius: 11px; font-size: 14px; margin-bottom: 18px;
+}
+.swatch-row { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; }
+.swatch-row input[type="color"] { width: 42px; height: 42px; border-radius: 12px; }
+.swatch-row input[type="text"] {
+  margin-bottom: 0; font-family: var(--mono); letter-spacing: 0.03em; text-transform: uppercase;
+}
+.dialog-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ---- Search (Ctrl+K) ---- */
+#search-dialog { place-items: start center; padding-top: min(18vh, 160px); }
+.search-box { width: min(560px, 100%); padding: 0; overflow: hidden; }
+.search-field {
+  display: flex; align-items: center; gap: 10px; padding: 0 16px;
+  border-bottom: 1px solid var(--line); color: var(--text-3);
+}
+.search-field input[type="text"],
+.search-field input[type="text"]:focus {
+  flex: 1; min-width: 0; height: 52px; margin: 0; padding: 0;
+  border: none; border-radius: 0; background: none; box-shadow: none; font-size: 15px;
+}
+kbd {
+  padding: 2px 6px; border-radius: 6px;
+  font-family: var(--font); font-size: 11px; font-weight: 550;
+  color: var(--text-3); background: var(--hover);
+}
+#search-results { max-height: min(52vh, 420px); overflow-y: auto; padding: 6px; }
+.search-heading {
+  padding: 6px 10px 4px; font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3);
+}
+.search-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 10px; cursor: pointer; font-size: 13.5px;
+}
+.search-row .icon { width: 16px; height: 16px; color: var(--text-3); }
+.search-row:hover, .search-row.active { background: var(--hover); }
+.search-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-text mark { background: var(--accent-soft); color: inherit; border-radius: 3px; font-weight: 650; }
+.search-path {
+  flex-shrink: 0; max-width: 40%; font-size: 12px; color: var(--text-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.search-note { padding: 20px 12px; text-align: center; font-size: 13px; color: var(--text-3); }
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+.primary-btn, .secondary-btn {
+  height: 36px; border: none; border-radius: 10px;
+  font-family: inherit; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  transition: background var(--fast) var(--ease), transform var(--fast) var(--ease),
+              box-shadow var(--fast) var(--ease);
+}
+.primary-btn:active, .secondary-btn:active { transform: scale(0.98); }
+.primary-btn .icon, .secondary-btn .icon { width: 15px; height: 15px; }
+
+.primary-btn {
+  padding: 0 16px; background: var(--accent); color: var(--on-accent);
+  font-size: 13.5px; font-weight: 600;
+}
+.primary-btn:hover { background: var(--accent-hover); }
+
+.secondary-btn {
+  padding: 0 14px; background: var(--surface); color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  font-size: 13px; font-weight: 500;
+}
+.secondary-btn:hover { background: var(--surface-2); }
+
+/* ================================================================
+   SELECTION BOX / DROP ZONE
+   ================================================================ */
+.selection-box {
+  position: absolute; border: 1px solid var(--accent);
+  background: var(--accent-soft); pointer-events: none;
+  z-index: 9999; border-radius: 4px;
+}
+#board-viewport.drag-over::after {
+  content: 'Drop images to add them'; position: absolute; inset: var(--edge);
+  border: 2px dashed var(--accent); border-radius: 22px;
+  background: var(--accent-soft); display: grid; place-content: center;
+  font-size: 17px; font-weight: 600; line-height: 1.5; color: var(--accent);
+  z-index: 9998; pointer-events: none; animation: fadeIn 0.12s var(--ease);
+}
+
+/* ================================================================
+   TOASTS
+   ================================================================ */
+#toasts {
+  position: fixed; left: 50%; bottom: 68px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  z-index: 30000; pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 12px;
+  max-width: calc(100vw - 32px); padding: 9px 16px; border-radius: 999px;
+  background: var(--tooltip-bg); color: var(--tooltip-text);
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22); pointer-events: auto;
+  animation: toastIn 0.2s var(--ease);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+}
+.toast.leaving { opacity: 0; transform: translateY(6px); }
+.toast button {
+  margin-right: -7px; padding: 3px 11px; border: none; border-radius: 999px;
+  background: rgba(128, 128, 128, 0.28); color: inherit;
+  font: inherit; font-weight: 650; cursor: pointer;
+}
+.toast button:hover { background: rgba(128, 128, 128, 0.45); }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ================================================================
+   CONNECTION LABELS
+   ================================================================ */
+.conn-label {
+  position: absolute;
+  background: var(--surface-solid);
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 550; color: var(--text-2);
+  box-shadow: var(--shadow-card);
+  pointer-events: auto; cursor: pointer; white-space: nowrap;
+  transform: translate(-50%,-50%);
+}
+
+/* ================================================================
+   GLASS THEME: see-through panes over a wallpaper
+   Tokens first (a dark-wallpaper set, then a light one), then the
+   few rules that tokens alone cannot express.
+   ================================================================ */
+:root {
+  --wp-aurora:
+    radial-gradient(60% 55% at 12% 16%, rgba(99, 102, 241, 0.85), transparent 70%),
+    radial-gradient(55% 60% at 90% 10%, rgba(217, 70, 160, 0.60), transparent 70%),
+    radial-gradient(62% 60% at 80% 92%, rgba(20, 184, 166, 0.62), transparent 70%),
+    radial-gradient(52% 55% at 14% 94%, rgba(59, 130, 246, 0.70), transparent 70%),
+    linear-gradient(160deg, #1b1442, #0c0f2e);
+  --wp-sunset:
+    radial-gradient(60% 55% at 12% 14%, rgba(234, 108, 40, 0.72), transparent 70%),
+    radial-gradient(55% 60% at 90% 16%, rgba(219, 60, 130, 0.66), transparent 70%),
+    radial-gradient(66% 60% at 72% 96%, rgba(116, 58, 220, 0.74), transparent 70%),
+    radial-gradient(50% 50% at 8% 92%, rgba(190, 40, 60, 0.50), transparent 70%),
+    linear-gradient(160deg, #3a1338, #1b0f2e);
+  --wp-ocean:
+    radial-gradient(60% 60% at 10% 10%, rgba(14, 150, 220, 0.72), transparent 70%),
+    radial-gradient(55% 55% at 92% 22%, rgba(16, 170, 130, 0.56), transparent 70%),
+    radial-gradient(70% 62% at 60% 100%, rgba(37, 99, 235, 0.78), transparent 70%),
+    linear-gradient(160deg, #06243f, #071530);
+  --wp-dawn:
+    radial-gradient(60% 55% at 12% 14%, rgba(255, 186, 150, 0.95), transparent 70%),
+    radial-gradient(55% 60% at 90% 12%, rgba(255, 168, 210, 0.90), transparent 70%),
+    radial-gradient(62% 60% at 82% 92%, rgba(166, 188, 255, 0.95), transparent 70%),
+    radial-gradient(55% 55% at 14% 92%, rgba(204, 172, 255, 0.85), transparent 70%),
+    linear-gradient(160deg, #fdeee4, #ece6fb);
+  --wp-mint:
+    radial-gradient(60% 55% at 10% 12%, rgba(146, 232, 198, 0.95), transparent 70%),
+    radial-gradient(55% 60% at 92% 14%, rgba(158, 212, 255, 0.95), transparent 70%),
+    radial-gradient(62% 60% at 76% 94%, rgba(255, 238, 168, 0.90), transparent 70%),
+    radial-gradient(55% 55% at 14% 90%, rgba(170, 228, 240, 0.90), transparent 70%),
+    linear-gradient(160deg, #e9faf2, #e6f3fb);
+}
+
+:root[data-theme="glass"] {
+  color-scheme: dark;
+  --wallpaper: var(--wp-aurora);
+
+  --canvas: #100d28;
+  --surface: rgba(255, 255, 255, 0.10);
+  --surface-2: rgba(255, 255, 255, 0.15);
+  --surface-3: rgba(255, 255, 255, 0.20);
+  --surface-solid: rgba(46, 43, 70, 0.96);
+  --chrome: rgba(255, 255, 255, 0.08);
+  --field: rgba(8, 6, 28, 0.30);
+
+  --text: #ffffff;
+  --text-2: rgba(255, 255, 255, 0.78);
+  --text-3: rgba(255, 255, 255, 0.58);
+  --text-4: rgba(255, 255, 255, 0.40);
+
+  --line: rgba(255, 255, 255, 0.13);
+  --line-strong: rgba(255, 255, 255, 0.26);
+  --hover: rgba(255, 255, 255, 0.13);
+  --pressed: rgba(255, 255, 255, 0.22);
+
+  --accent: #ff7a4d;
+  --accent-hover: #ff906a;
+  --accent-soft: rgba(255, 122, 77, 0.22);
+  --accent-ring: rgba(255, 122, 77, 0.45);
+  --on-accent: #230d04;
+
+  --danger: #ff8086;
+  --danger-soft: rgba(255, 128, 134, 0.18);
+
+  --dot: rgba(255, 255, 255, 0.10);
+  --column-bg: rgba(255, 255, 255, 0.06);
+  --column-line: rgba(255, 255, 255, 0.16);
+
+  /* Glass edges: a bright rim where light enters, a dimmer one opposite, a soft inner glow */
+  --ring: rgba(255, 255, 255, 0.16);
+  --rim: inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.60),
+         inset -1px -1px 0.5px -0.5px rgba(255, 255, 255, 0.26),
+         inset 0 0 16px rgba(255, 255, 255, 0.05);
+  --drop: 8, 4, 30;
+  --shadow-card: var(--rim), 0 0 0 1px var(--ring), 0 8px 24px rgba(var(--drop), 0.26);
+  --shadow-card-hover: var(--rim), 0 0 0 1px var(--line-strong), 0 14px 36px rgba(var(--drop), 0.38);
+  --shadow-drag: var(--rim), 0 0 0 1px var(--line-strong), 0 30px 64px rgba(var(--drop), 0.55);
+  --shadow-float: var(--rim), 0 0 0 1px var(--ring), 0 10px 34px rgba(var(--drop), 0.30);
+  --shadow-pop: var(--rim), 0 0 0 1px var(--line-strong), 0 24px 60px rgba(var(--drop), 0.50);
+  --sheen: linear-gradient(125deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 40%,
+                           rgba(255,255,255,0) 64%, rgba(255,255,255,0.07) 100%);
+
+  /* Frosted for things you read, nearly clear for the floating bars */
+  --glass: blur(26px) saturate(185%) brightness(0.88);
+  --card-glass: blur(28px) saturate(170%) brightness(0.86);
+  --island-glass: blur(7px) saturate(190%) brightness(0.84);
+  --tint-mix: 88%; /* how solid a colored card is; lower over a dark wallpaper turns pastels muddy */
+
+  --tooltip-bg: rgba(255, 255, 255, 0.94);
+  --tooltip-text: #1b1830;
+  --overlay: rgba(8, 4, 30, 0.42);
+
+  --r-sm: 10px;
+  --r-md: 18px;
+  --r-lg: 24px;
+}
+
+/* Light wallpapers (or a light custom board background) flip the glass to dark-on-light */
+:root[data-theme="glass"]:is([data-wallpaper="dawn"], [data-wallpaper="mint"]):not([data-board-tone="dark"]),
+:root[data-theme="glass"][data-board-tone="light"] {
+  color-scheme: light;
+
+  --canvas: #f0eafa;
+  --surface: rgba(255, 255, 255, 0.40);
+  --surface-2: rgba(255, 255, 255, 0.58);
+  --surface-3: rgba(40, 30, 90, 0.12);
+  --surface-solid: rgba(255, 255, 255, 0.96);
+  --chrome: rgba(255, 255, 255, 0.30);
+  --field: rgba(255, 255, 255, 0.55);
+
+  --text: #1b1830;
+  --text-2: rgba(27, 24, 48, 0.76);
+  --text-3: rgba(27, 24, 48, 0.58);
+  --text-4: rgba(27, 24, 48, 0.40);
+
+  --line: rgba(27, 24, 48, 0.10);
+  --line-strong: rgba(27, 24, 48, 0.20);
+  --hover: rgba(255, 255, 255, 0.45);
+  --pressed: rgba(255, 255, 255, 0.68);
+
+  --accent: #f4511c;
+  --accent-hover: #df4411;
+  --accent-soft: rgba(244, 81, 28, 0.14);
+  --accent-ring: rgba(244, 81, 28, 0.30);
+  --on-accent: #ffffff;
+
+  --danger: #d93a41;
+  --danger-soft: rgba(217, 58, 65, 0.12);
+
+  --dot: rgba(27, 24, 48, 0.10);
+  --column-bg: rgba(255, 255, 255, 0.20);
+  --column-line: rgba(255, 255, 255, 0.60);
+
+  --ring: rgba(255, 255, 255, 0.60);
+  --rim: inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 1),
+         inset -1px -1px 0.5px -0.5px rgba(255, 255, 255, 0.65),
+         inset 0 0 16px rgba(255, 255, 255, 0.20);
+  --drop: 60, 40, 120;
+  --shadow-card: var(--rim), 0 0 0 1px var(--ring), 0 8px 24px rgba(var(--drop), 0.12);
+  --shadow-card-hover: var(--rim), 0 0 0 1px rgba(255,255,255,0.9), 0 14px 36px rgba(var(--drop), 0.18);
+  --shadow-drag: var(--rim), 0 0 0 1px rgba(255,255,255,0.9), 0 30px 64px rgba(var(--drop), 0.28);
+  --shadow-float: var(--rim), 0 0 0 1px var(--ring), 0 10px 34px rgba(var(--drop), 0.14);
+  --shadow-pop: var(--rim), 0 0 0 1px rgba(255,255,255,0.9), 0 24px 60px rgba(var(--drop), 0.24);
+  --sheen: linear-gradient(125deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 42%,
+                           rgba(255,255,255,0) 64%, rgba(255,255,255,0.25) 100%);
+
+  --glass: blur(26px) saturate(185%) brightness(1.06);
+  --card-glass: blur(28px) saturate(170%) brightness(1.05);
+  --island-glass: blur(7px) saturate(190%) brightness(1.08);
+  --tint-mix: 72%;
+
+  --tooltip-bg: rgba(27, 24, 48, 0.92);
+  --tooltip-text: #ffffff;
+  --overlay: rgba(60, 40, 120, 0.18);
+}
+
+:root[data-wallpaper="sunset"] { --wallpaper: var(--wp-sunset); }
+:root[data-wallpaper="ocean"] { --wallpaper: var(--wp-ocean); }
+:root[data-wallpaper="dawn"] { --wallpaper: var(--wp-dawn); }
+:root[data-wallpaper="mint"] { --wallpaper: var(--wp-mint); }
+
+/* The wallpaper sits behind everything; a board with its own background color covers it */
+:root[data-theme="glass"] body { background-image: var(--wallpaper); }
+:root[data-theme="glass"] #board-viewport { background-color: var(--board-bg, transparent); }
+
+/* Panes: cards and board tiles are frosted, with a diagonal sheen */
+:root[data-theme="glass"] .card:not(.card-board, .card-column),
+:root[data-theme="glass"] .board-icon-area {
+  background-image: var(--sheen);
+  backdrop-filter: var(--card-glass);
+  -webkit-backdrop-filter: var(--card-glass);
+}
+:root[data-theme="glass"] .card.tinted {
+  background-color: color-mix(in srgb, var(--tint) var(--tint-mix), transparent);
+}
+
+/* Floating chrome */
+:root[data-theme="glass"] .island,
+:root[data-theme="glass"] .panel,
+:root[data-theme="glass"] #context-menu,
+:root[data-theme="glass"] #format-toolbar,
+:root[data-theme="glass"] .dialog { background-image: var(--sheen); }
+
+:root[data-theme="glass"] .island {
+  backdrop-filter: var(--island-glass);
+  -webkit-backdrop-filter: var(--island-glass);
+}
+/* Chromium only: bend what is behind the bars, like a thick lens */
+:root[data-theme="glass"][data-refraction] .island {
+  backdrop-filter: url(#liquid-refraction) var(--island-glass);
+}
+
+:root[data-theme="glass"] .icon-btn,
+:root[data-theme="glass"] .tool-btn,
+:root[data-theme="glass"] #zoom-level,
+:root[data-theme="glass"] #board-title,
+:root[data-theme="glass"] #breadcrumb .crumb { border-radius: 999px; }
+:root[data-theme="glass"] #sidebar { border-radius: 28px; }
+:root[data-theme="glass"] #context-menu { border-radius: 18px; }
+:root[data-theme="glass"] .ctx-item { border-radius: 13px; }
+:root[data-theme="glass"] #format-toolbar { border-radius: 17px; }
+:root[data-theme="glass"] #format-toolbar button { border-radius: 13px; }
+:root[data-theme="glass"] .segmented button.active { background: var(--pressed); }
+
+/* The dialog does its own frosting, so the backdrop only dims */
+:root[data-theme="glass"] .dialog-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+:root[data-theme="glass"] .dialog {
+  background-color: var(--surface-2); border-radius: 28px;
+  backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+}
+:root[data-theme="glass"] .primary-btn {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 18px var(--accent-ring);
+}
+
+.svg-defs { position: absolute; }
+
+/* ================================================================
+   SCROLLBAR / UTILITIES
+   ================================================================ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong); border-radius: 4px;
+  border: 2px solid transparent; background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--text-4); }
+
+.hidden { display: none !important; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--accent-ring); }
+
+/* No backdrop-filter: fall back to solid chrome */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .island, .panel, #context-menu, #format-toolbar { background: var(--surface-solid); }
+}
+
+/* Short windows: hang the dock under the top bar instead of centring it */
+@media (max-height: 560px) {
+  #sidebar { top: calc(var(--edge) + 52px); transform: none; }
+}
+@media (max-width: 640px) {
+  #board-title { max-width: 30vw; }
+}
+@media (max-width: 900px) {
+  #arrange-bar { top: calc(var(--edge) + 56px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,13 @@
+node_modules/
+npm-debug.log*
+
+# boards and uploaded files: personal, and kept outside the app (see DATA_DIR)
+data/
+
+.env
+.env.*
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

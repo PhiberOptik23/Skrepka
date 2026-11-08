@@ -1,0 +1,14 @@
+services:
+  skrepka:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # put SKREPKA_PASSWORD=... into a .env file next to this one
+      SKREPKA_PASSWORD: ${SKREPKA_PASSWORD:-}
+      # the name used before the rename still works
+      MILASLOP_PASSWORD: ${MILASLOP_PASSWORD:-}
+    volumes:
+      # all boards and uploaded files; back this folder up
+      - ./data:/data
